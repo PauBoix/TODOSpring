@@ -25,6 +25,8 @@ public class User implements Serializable {
     this.email = email;
     this.password = password;
     this.tasks = new ArrayList<>();
+    this.owner_groups = new ArrayList<>();
+    this.member_groups = new ArrayList<>();
   }
 
   @Id
@@ -42,6 +44,12 @@ public class User implements Serializable {
 
   @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
   private Collection<Task> tasks;
+
+  @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
+  private Collection<Group> owner_groups;
+
+  @ManyToMany(cascade = CascadeType.ALL)
+  private Collection<Group> member_groups;
 
   @JsonView(Views.Private.class)
   public Long getId() {
@@ -76,8 +84,28 @@ public class User implements Serializable {
     return tasks;
   }
 
+    @JsonView(Views.Complete.class)
+    public Collection<Group> getGroups() {
+        // Since tasks is collection controlled by JPA, it has LAZY loading by default. That means
+        // that you have to query the object (calling size(), for example) to get the list initialized
+        // More: http://www.javabeat.net/jpa-lazy-eager-loading/
+        owner_groups.size();
+        return owner_groups;
+    }
+
+    @JsonView(Views.Complete.class)
+    public Collection<Group> getMembership() {
+        // Since tasks is collection controlled by JPA, it has LAZY loading by default. That means
+        // that you have to query the object (calling size(), for example) to get the list initialized
+        // More: http://www.javabeat.net/jpa-lazy-eager-loading/
+        member_groups.size();
+        return member_groups;
+    }
+
   public void addTask(Task task) {
     tasks.add(task);
   }
+  public void addGroup(Group group) {owner_groups.add(group);}
+  public void addMembership(Group group) {member_groups.add(group);}
 
 }
